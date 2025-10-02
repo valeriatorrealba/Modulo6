@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
+import { getPokemonDetalle } from "../api/pokemon.js";
 
 const route = useRoute();
 const id = route.params.id;
@@ -13,20 +14,7 @@ async function cargarPokemon() {
     loading.value = true;
     error.value = "";
     try {
-        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const info = await res.json();
-
-        pokemon.value = {
-            id: info.id,
-            nombre: info.name,
-            imagen: info.sprites.other["official-artwork"].front_default,
-            altura: info.height * 10,
-            peso: (info.weight / 10).toFixed(1),
-            tipos: info.types.map((t) => t.type.name),
-            habilidades: info.abilities.map((a) => a.ability.name),
-            base_experience: info.base_experience,
-        };
+        pokemon.value = await getPokemonDetalle(id);
     } catch (e) {
         console.error(e);
         error.value = "No se pudo cargar el Pokémon";
